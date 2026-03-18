@@ -1,351 +1,314 @@
+# Experiment 4: Aggregate Functions, Group By and Having Clause
+
 ## AIM
-To study and implement subqueries and views.
+To study and implement aggregate functions, GROUP BY, and HAVING clause with suitable examples.
 
 ## THEORY
 
-### Subqueries
-A subquery is a query inside another SQL query and is embedded in:
-- WHERE clause
-- HAVING clause
-- FROM clause
+### Aggregate Functions
+These perform calculations on a set of values and return a single value.
 
-**Types:**
-- **Single-row subquery**:
-  Sub queries can also return more than one value. Such results should be made use along with the operators in and any.
-- **Multiple-row subquery**:
-  Here more than one subquery is used. These multiple sub queries are combined by means of ‘and’ & ‘or’ keywords.
-- **Correlated subquery**:
-  A subquery is evaluated once for the entire parent statement whereas a correlated Sub query is evaluated once per row processed by the parent statement.
+- **MIN()** – Smallest value  
+- **MAX()** – Largest value  
+- **COUNT()** – Number of rows  
+- **SUM()** – Total of values  
+- **AVG()** – Average of values
 
-**Example:**
+**Syntax:**
 ```sql
-SELECT * FROM employees
-WHERE salary > (SELECT AVG(salary) FROM employees);
+SELECT AGG_FUNC(column_name) FROM table_name WHERE condition;
 ```
-### Views
-A view is a virtual table based on the result of an SQL SELECT query.
-**Create View:**
+### GROUP BY
+Groups records with the same values in specified columns.
+**Syntax:**
 ```sql
-CREATE VIEW view_name AS
-SELECT column1, column2 FROM table_name WHERE condition;
+SELECT column_name, AGG_FUNC(column_name)
+FROM table_name
+GROUP BY column_name;
 ```
-**Drop View:**
+### HAVING
+Filters the grouped records based on aggregate conditions.
+**Syntax:**
 ```sql
-DROP VIEW view_name;
+SELECT column_name, AGG_FUNC(column_name)
+FROM table_name
+GROUP BY column_name
+HAVING condition;
 ```
 
 **Question 1**
 --
-Write a SQL query to retrieve all columns from the CUSTOMERS table for customers whose AGE is LESS than $30
+How many appointments are scheduled in each hour of the day?
 
-Sample table: CUSTOMERS
+Sample table:Appointments Table
 
-ID          NAME        AGE         ADDRESS     SALARY
-----------  ----------  ----------  ----------  ----------
-
-1          Ramesh     32              Ahmedabad     2000
-2          Khilan        25              Delhi                 1500
-3          Kaushik      23              Kota                  2000
-4          Chaitali       25             Mumbai            6500
-5          Hardik        27              Bhopal              8500
-6          Komal         22              Hyderabad       4500
-
-7           Muffy          24              Indore            10000
-
-
-
+name                              type
+--------------------          ----------
+AppointmentID               INTEGER
+PatientID                   INTEGER
+DoctorID                    INTEGER
+AppointmentDateTime         DATETIME
+Purpose                     TEXT
+Status                      TEXT
 ```sql
-select * from CUSTOMERS where AGE<30;
+SELECT 
+    strftime('%H', AppointmentDateTime) AS HourOfDay,
+    COUNT(*) AS TotalAppointments
+FROM Appointments
+GROUP BY strftime('%H', AppointmentDateTime)
+ORDER BY HourOfDay;
 ```
 
 **Output:**
 
-<img width="1280" height="652" alt="image" src="https://github.com/user-attachments/assets/9de19065-7bce-4fde-b38c-5da9948431b4" />
+<img width="1229" height="602" alt="image" src="https://github.com/user-attachments/assets/40a68fc3-c41b-4656-95ee-c7a5287553a2" />
 
 
 **Question 2**
 ---
-Write a query to display all the customers whose ID is the difference between the salesperson ID of Mc Lyon and 2001.
+What is the total number of appointments scheduled for each day?
 
-salesman table
+Table: Appointments
 
-name             type
----------------  ---------------
-salesman_id      numeric(5)
-name                 varchar(30)
-city                    varchar(15)
-commission       decimal(5,2)
-
-customer table
-
-name         type
------------  ----------
-customer_id  int
-cust_name    text
-city         text
-grade        int
-salesman_id  int
+name                 type
+-------------------  ----------
+AppointmentID        INTEGER
+PatientID            INTEGER
+DoctorID             INTEGER
+AppointmentDateTime  DATETIME
+Purpose              TEXT
+Status               TEXT
 
 ```sql
-select *
-from customer
-where customer_id =(
-    select salesman_id -2001
-    from salesman
-    where name='Mc Lyon'
-);
+SELECT 
+    DATE(AppointmentDateTime) AS AppointmentDate,
+    COUNT(*) AS TotalAppointments
+FROM Appointments
+GROUP BY DATE(AppointmentDateTime)
+ORDER BY AppointmentDate;
 ```
 
 **Output:**
 
-<img width="1274" height="374" alt="image" src="https://github.com/user-attachments/assets/8af76bce-4d40-4de5-b60f-4914e91ce825" />
-
+<img width="1221" height="730" alt="image" src="https://github.com/user-attachments/assets/1a22dde1-49da-4a47-9620-aa40fbc549d7" />
 
 **Question 3**
 ---
-Write a SQL query to retrieve all columns from the CUSTOMERS table for customers whose salary is EQUAL TO $1500.
+How many medical records does each doctor have?
 
-Sample table: CUSTOMERS
+Sample table:MedicalRecords Table
 
-ID          NAME        AGE         ADDRESS     SALARY
-----------  ----------  ----------  ----------  ----------
 
-1          Ramesh     32              Ahmedabad     2000
-2          Khilan        25              Delhi                 1500
-3          Kaushik      23              Kota                  2000
-4          Chaitali       25             Mumbai            6500
-5          Hardik        27              Bhopal              8500
-6          Komal         22              Hyderabad       4500
-
-7           Muffy          24              Indore            10000
 
 ```sql
-select * from CUSTOMERS where salary=1500;
+SELECT 
+    DoctorID,
+    COUNT(*) AS TotalRecords
+FROM MedicalRecords
+GROUP BY DoctorID
+ORDER BY DoctorID;
 ```
 
 **Output:**
 
-<img width="1278" height="398" alt="image" src="https://github.com/user-attachments/assets/52a657e8-2cbc-473a-8534-7d1c20c9a93e" />
+<img width="1216" height="699" alt="image" src="https://github.com/user-attachments/assets/cffe9606-7065-4d7c-b095-9f82364cc03f" />
+
 
 **Question 4**
 ---
-Write a SQL query to retrieve all columns from the CUSTOMERS table for customers whose salary is LESS than $2500.
+Write a SQL query to find the number of employees who are having the same age removing the duplicate values.
 
-Sample table: CUSTOMERS
+Sample table: employee
 
-ID          NAME        AGE         ADDRESS     SALARY
-----------  ----------  ----------  ----------  ----------
+id
 
-1          Ramesh     32              Ahmedabad     2000
-2          Khilan        25              Delhi                 1500
-3          Kaushik      23              Kota                  2000
-4          Chaitali       25             Mumbai            6500
-5          Hardik        27              Bhopal              8500
-6          Komal         22              Hyderabad       4500
+name
 
-7           Muffy          24              Indore            10000
+age
+
+address
+
+salary
+
+1
+
+Paul
+
+32
+
+California
+
+20000
+
+4
+
+Mark
+
+25
+
+Richtown
+
+65000
+
+5
+
+David
+
+27
+
+Texas
+
+85000
+
+
 
 ```sql
-select * from CUSTOMERS
-where salary<2500;
+SELECT COUNT(DISTINCT age) AS COUNT
+FROM employee;
 ```
 
 **Output:**
 
-<img width="1286" height="526" alt="image" src="https://github.com/user-attachments/assets/deee2652-fa37-4e28-96bd-4009a795042d" />
-
+<img width="1205" height="375" alt="image" src="https://github.com/user-attachments/assets/701753ea-036a-4c94-bebe-79cb29c588f4" />
 
 **Question 5**
 ---
-From the following tables, write a SQL query to find all the orders generated in New York city. Return ord_no, purch_amt, ord_date, customer_id and salesman_id.
+Write a SQL query to find the maximum purchase amount.
 
-SALESMAN TABLE
+Sample table: orders
 
-name               type
------------        ----------
-salesman_id  numeric(5)
-name             varchar(30)
-city                 varchar(15)
-commission   decimal(5,2)
+ord_no      purch_amt   ord_date    customer_id  salesman_id
 
-ORDERS TABLE
+----------  ----------  ----------  -----------  -----------
 
-name            type
-----------      ----------
-ord_no          int
-purch_amt    real
-ord_date       text
-customer_id  int
-salesman_id  int
+70001       150.5       2012-10-05  3005         5002
+
+70009       270.65      2012-09-10  3001         5005
+
+70002       65.26       2012-10-05  3002         5001
+
 ```sql
-select ord_no, purch_amt, ord_date, customer_id, salesman_id
-from ORDERS
-where salesman_id in(
-    select salesman_id
-    from salesman
-    where city='New York'
-);
+SELECT 
+    MAX(purch_amt) AS MAXIMUM
+FROM orders;
 ```
 
 **Output:**
 
-<img width="1269" height="542" alt="image" src="https://github.com/user-attachments/assets/a23bc2f6-8639-4629-9b4d-186b57e47a75" />
+<img width="1210" height="379" alt="image" src="https://github.com/user-attachments/assets/49936adf-68b6-4746-abd7-9bd1f309af3a" />
+
 
 **Question 6**
 ---
-Write a SQL query that retrieves the names of students and their corresponding grades, where the grade is equal to the minimum grade achieved in each subject.
+Write a SQL query to calculate the total number of working hours of all employees
 
-Sample table: GRADES (attributes: student_id, student_name, subject, grade)
+Sample table: employee1
 
 ```sql
-select student_name,grade
-from GRADES g
-where grade=(
-    select MIN(grade)
-    from GRADES
-    where subject=g.subject
-);
+SELECT 
+    SUM(workhour) AS "Total working hours"
+FROM employee1;
 ```
 
 **Output:**
 
-<img width="1272" height="507" alt="image" src="https://github.com/user-attachments/assets/42fcd379-a9a8-4e91-96c7-792d7e4b298e" />
+<img width="1220" height="369" alt="image" src="https://github.com/user-attachments/assets/7850a241-2eec-4574-be95-60bf3315fd33" />
 
 
 **Question 7**
 ---
-From the following tables write a SQL query to find all orders generated by London-based salespeople. Return ord_no, purch_amt, ord_date, customer_id, salesman_id.
+Write a SQL query to determine the number of customers who received at least one grade for their activity.
 
-salesman table
+Sample table: customer
 
-name             type
----------------  ---------------
-salesman_id      numeric(5)
-name                 varchar(30)
-city                    varchar(15)
-commission       decimal(5,2)
+customer_id |   cust_name    |    city    | grade | salesman_id 
 
-orders table
+-------------+----------------+------------+-------+-------------
 
-name             type
----------------  --------
-order_no         int
-purch_amt        real
-order_date       text
-customer_id      int
-salesman_id      int
+        3002 | Nick Rimando   | New York   |   100 |        5001
+
+        3007 | Brad Davis     | New York   |   200 |        5001
+
+        3005 | Graham Zusi    | California |   200 |        5002
 
 ```sql
-select ord_no, purch_amt, ord_date, customer_id, salesman_id
-from ORDERS
-where salesman_id in(
-    select salesman_id
-    from salesman
-    where city='London'
-);
+SELECT 
+    COUNT(*) AS COUNT
+FROM customer
+WHERE grade IS NOT NULL;
 ```
 
 **Output:**
 
-<img width="1272" height="474" alt="image" src="https://github.com/user-attachments/assets/c6843368-5e5b-4a27-9103-bcfc2a24eef9" />
+<img width="1226" height="373" alt="image" src="https://github.com/user-attachments/assets/58c5116e-eea9-4176-b844-0fceaacb84d9" />
 
 
 **Question 8**
 ---
-Write a SQL query to retrieve all columns from the CUSTOMERS table for customers whose Address as Delhi and age below 30
+Write the SQL query that achieves the grouping of data by age, calculates the minimum income for each age group, and includes only those age groups where the minimum income is less than 1,000,000.
 
-Sample table: CUSTOMERS
-
-ID          NAME        AGE         ADDRESS     SALARY
-----------  ----------  ----------  ----------  ----------
-
-1          Ramesh     32              Ahmedabad     2000
-2          Khilan        25              Delhi                 1500
-3          Kaushik      23              Kota                  2000
-4          Chaitali       25             Mumbai            6500
-5          Hardik        27              Bhopal              8500
-6          Komal         22              Hyderabad       4500
-
-7           Muffy          24              Indore            10000
+Sample table: employee
 
 ```sql
-select * from CUSTOMERS
-where ADDRESS is 'Delhi' and AGE<30
-order by ID;
+SELECT 
+    age,
+    MIN(income) AS Income
+FROM employee
+GROUP BY age
+HAVING MIN(income) < 1000000;
 ```
 
 **Output:**
 
-<img width="1277" height="432" alt="image" src="https://github.com/user-attachments/assets/67bc3e0a-1ef5-49ed-86b7-462b054f3144" />
+<img width="1222" height="496" alt="image" src="https://github.com/user-attachments/assets/ff063fe3-cc25-42ce-a6ad-ca699352ab7f" />
 
 
 **Question 9**
 ---
-From the following tables, write a SQL query to find all orders generated by the salespeople who may work for customers whose id is 3007. Return ord_no, purch_amt, ord_date, customer_id, salesman_id.
+Write the SQL query that accomplishes the grouping of data by joining date (jdate), calculates the minimum work hours for each date, and excludes dates where the minimum work hour is not less than 10.
 
-Table Name: orders
+Sample table: employee1
 
-name             type
----------------  --------
-order_no         int
-purch_amt        real
-order_date       text
-customer_id      int
-salesman_id      int
+
 
 ```sql
-select * from orders
-where salesman_id in(
-    select salesman_id
-    from orders
-    where customer_id=3007
-);
+SELECT 
+    jdate,
+    MIN(workhour) AS "MIN(workhour)"
+FROM employee1
+GROUP BY jdate
+HAVING MIN(workhour) < 10;
 ```
 
 **Output:**
 
-<img width="1274" height="537" alt="image" src="https://github.com/user-attachments/assets/ca08bde4-cca7-40c8-a25d-cc40fd1606b1" />
+<img width="1216" height="498" alt="image" src="https://github.com/user-attachments/assets/67ad7466-89c1-40dd-99f6-e87827789d2a" />
 
 
 **Question 10**
 ---
-From the following tables, write a SQL query to find those salespeople who earned the maximum commission. Return ord_no, purch_amt, ord_date, and salesman_id.
+Write the SQL query that accomplishes the selection of total cost of all products in each category from the "products" table and includes only those products where the total cost is greater than 50.
 
-salesman table
-
-name             type
----------------  ---------------
-salesman_id      numeric(5)
-name                 varchar(30)
-city                    varchar(15)
-commission       decimal(5,2)
-
-orders table
-
-name             type
----------------  --------
-order_no         int
-purch_amt        real
-order_date       text
-customer_id      int
-salesman_id      int
-
+Sample table: products
 ```sql
-select  ord_no, purch_amt, ord_date, salesman_id
-from orders
-where salesman_id in(
-    select salesman_id 
-    from salesman
-    where commission=(select MAX(commission) from salesman)
-);
+SELECT 
+    category_id,
+    SUM(price) AS Total_Cost
+FROM products
+GROUP BY category_id
+HAVING SUM(price) > 50;
 ```
 
 **Output:**
-<img width="1279" height="537" alt="image" src="https://github.com/user-attachments/assets/d3601d0a-f005-44b5-9d68-bd9a5fb65688" />
 
-**GRADE:**
-<img width="1321" height="443" alt="Screenshot 2026-03-18 181123" src="https://github.com/user-attachments/assets/f8e75684-d37e-402f-9173-544ec13b077f" />
+<img width="1208" height="395" alt="image" src="https://github.com/user-attachments/assets/50ba8057-6f33-4747-be04-8466d16d4fd2" />
+
+**Grade:**
+
+<img width="1321" height="443" alt="Screenshot 2026-03-18 181123" src="https://github.com/user-attachments/assets/f3faee82-6d9d-483e-ad57-0116a2fd3abf" />
+
+
 
 
 ## RESULT
-Thus, the SQL queries to implement subqueries and views have been executed successfully.
+Thus, the SQL queries to implement aggregate functions, GROUP BY, and HAVING clause have been executed successfully.
