@@ -1,5 +1,3 @@
-# Experiment 5: Subqueries and Views
-
 ## AIM
 To study and implement subqueries and views.
 
@@ -346,8 +344,7 @@ where salesman_id in(
 <img width="1279" height="537" alt="image" src="https://github.com/user-attachments/assets/d3601d0a-f005-44b5-9d68-bd9a5fb65688" />
 
 **GRADE:**
-
-<img width="1321" height="443" alt="Screenshot 2026-03-18 181123" src="https://github.com/user-attachments/assets/23cdf504-0cb0-495f-b78f-e652b6bdd5f9" />
+<img width="1321" height="443" alt="Screenshot 2026-03-18 181123" src="https://github.com/user-attachments/assets/f8e75684-d37e-402f-9173-544ec13b077f" />
 
 
 ## RESULT
